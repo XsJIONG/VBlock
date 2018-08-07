@@ -23,8 +23,8 @@ public class FloatButton extends PopupWindow implements View.OnTouchListener {
 		Image.setOnTouchListener(this);
 		setContentView(Image);
 		setBackgroundDrawable(null);
-		setWidth(50);
-		setHeight(50);
+		setWidth(200);
+		setHeight(200);
 		setTouchable(true);
 	}
 	private View parent;

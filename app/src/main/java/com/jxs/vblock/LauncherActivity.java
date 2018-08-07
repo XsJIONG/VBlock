@@ -86,8 +86,7 @@ public class LauncherActivity extends AppCompatActivity {
 		try {
 			WriteConsole("正在加载Minecraft...");
 			Global.MCPE_LIB=new File(Global.MCPE_LIBDIR, Global.MCLIB_CORE);
-			//System.load(Global.MCPE_LIB.getAbsolutePath());
-			System.loadLibrary("minecraftpe");
+			System.load(Global.MCPE_LIB.getAbsolutePath());
 		} catch (Throwable t) {
 			WriteConsole("加载Minecraft失败！");
 			ShowErr(t);

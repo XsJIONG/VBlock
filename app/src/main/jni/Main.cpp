@@ -5,6 +5,7 @@
 #include <Substrate.h>
 #include <fstream>
 #include <stdlib.h>
+#include <Common.h>
 
 std::ofstream out;
 const char *MCOptionO="/data/data/com.mojang.minecraftpe/games/com.mojang/minecraftpe/options.txt";
@@ -29,15 +30,15 @@ namespace JNIExport {
 		GDRSize=strlen(GamesDirR);
 	}
 	jstring getGamesDir(JNIEnv* env, jobject jthis) {
-        return env->NewStringUTF(GamesDirR);
-    }
+		return env->NewStringUTF(GamesDirR);
+	}
 	static JNINativeMethod ALL[]={
 		{"setTmpOptionFilePath","(Ljava/lang/String;)V",(void*)setTmpOptionFilePath},{"getTmpOptionFilePath","()Ljava/lang/String;",(void*)getTmpOptionFilePath},{"setGamesDir","(Ljava/lang/String;)V",(void*)setGamesDir},{"getGamesDir","()Ljava/lang/String;",(void*)getGamesDir}
 
 	};
 };
 static bool StringCmp(const char *a, const char *b, int size) {
-    for (int i=0;i<size;i++) if (a[i]!=b[i]) return 0;
+	for (int i=0;i<size;i++) if (a[i]!=b[i]) return 0;
 	return 1;
 }
 const char* convert(const char *s) {
@@ -80,9 +81,18 @@ bool RegisterNativeMethods(JNIEnv* env) {
 		return 0;
 	return 1;
 }
-void Output(int i) {
-    out<<"Hello From FFI! Argument Here:"<<i<<'\n';
-    return;
+void* MC;
+std::string GetGameVersionStringHooked(void* a) {
+	out<<"GetGameVersion Called\n";
+	out.flush();
+	return "JIOSJADIOD";
+}
+inline void HookFunctions() {
+	out<<"MC Address:"<<(int)MC<<'\n';
+	void* addr=dlsym(MC, "_ZN6Common20getGameVersionStringEv");
+	out<<"Address:"<<(int)addr<<'\n';
+	out.flush();
+	MSHookFunction(addr,(void*)&GetGameVersionStringHooked,NULL);
 }
 extern "C" JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void* reserved) {
 	out.open("/sdcard/VIDENativeLog.txt");
@@ -97,5 +107,7 @@ extern "C" JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void* reserved) {
 	MSHookFunction(MSFindSymbol(Libc,"fopen"),(void*)&ReplacedOpen,(void**)&OriginOpen);
 	out<<"Hooked\n";
 	out.flush();
+	MC=dlopen("/data/data/com.mojang.minecraftpe/lib/libminecraftpe.so",RTLD_LAZY);
+	HookFunctions();
 	return JNI_VERSION_1_6;
 }
